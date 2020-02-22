@@ -26,11 +26,18 @@ def main():
         time.sleep(60.0)
         bot.reply_to(message, ":(")
 
-    @bot.message_handler(func=lambda m: True)
-    def echo_all(message):
-        if(message.text.lower() == "hh"):
-            bot.send_message(message.chat.id, "hh")
-            return message.chat.id
+#    @bot.message_handler(func=lambda m: True)
+#    def echo_all(message):
+#        print(message)
+#        if(message.text.lower() == "hh"):
+#            bot.send_message(message.chat.id, "hh")
+#            return message.chat.id
+
+
+    @bot.message_handler(content_types=['new_chat_members'])
+    def greetings(m):
+        new_member = ', '.join([x.first_name for x in m.new_chat_members])
+        bot.send_message(m.chat.id, f"hello {new_member}");
 
     bot.polling()
 
