@@ -26,33 +26,38 @@ def main():
         time.sleep(60.0)
         bot.reply_to(message, ":(")
 
-#    @bot.message_handler(func=lambda m: True)
-#    def echo_all(message):
-#        print(message)
-#        if(message.text.lower() == "hh"):
-#            bot.send_message(message.chat.id, "hh")
-#            return message.chat.id
-
     @bot.message_handler(commands=["spam"])
     def spam_msg(m):
         cid = m.chat.id
         args = m.text.split()
         num = 10
         msg = "spam"
-        if len(args) > 3:
-            num = 1
-            msg = "Usage: /spam [num] [msg]"
-        else:
-            if len(args) >= 2:
+        if len(args) >= 2:
+            try:
                 num = int(args[1])
-            if len(args) == 3:
-                msg = args[2]
+            except ValueError:
+                num = 0
+        if len(args) == 3:
+            msg = args[2]
+        if num == 0:
+            num = 1
+            msg = "Usage: `/spam [num [msg]]`"
         for _ in range(num):
-            bot.send_message(cid, msg)
+            bot.send_message(cid, msg, parse_mode="Markdown")
+
+    @bot.message_handler(commands=["reminder"])
+    def reminder(m):
+        cid = m.chat.id
+        args = m.text.split()
+
+        if len(args) != 3:
+            bot.reply_to(m, f"Usage: `/{args[0]} <HH:MM:SS> <what>`")
+            return
+        
 
     @bot.message_handler(commands=["help"])
     def help(m):
-        bot.reply_to(m, "Available commands are:\n* hh\n* start\n* spam")
+        bot.reply_to(m, "Available **commands** are:\n* hh\n* start\n* spam\n") #TODO find out why parse mode does not work
 
     @bot.message_handler(content_types=['new_chat_members'])
     def greetings(m):
