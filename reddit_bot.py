@@ -4,10 +4,12 @@ import praw
 from prawcore import NotFound
 import re
 
-def main():
-    with open("token.txt") as f:
-        token = f.readline().strip()
-    bot = telebot.TeleBot(token)
+def init(bot):
+    #with open("token.txt") as f:
+    #    token = f.readline().strip()
+    #bot = telebot.TeleBot(token)
+
+    print("reading reddit")
 
     @bot.message_handler(commands=['start'])
     def send_welcome(message):
@@ -25,8 +27,12 @@ def main():
     @bot.message_handler(commands=['r', 'reddit', 'meme'])
     def send_meme(m):
         args = m.text.split()
+
+        def usage():
+            bot.send_message(m.chat.id, f"Usage: /{args[0]} <subreddit> [r=random | t=top | add 'c' for top comment] [all | day | hour | month | week | year]")
+
         if (len(args) < 2 or len(args) > 4):
-            send_meme_usage(m, args[0])
+            usage()
             return
         sre = str(args[1])
         period = "week"
@@ -60,10 +66,10 @@ def main():
                     t = True
                     searchtype = searchtype + "t"
                 else:
-                    send_meme_usage(m, args[0])
+                    usage()
                     return
         if("r" not in searchtype and "t" not in searchtype):
-            send_meme_usage(m, args[0])
+            usage()
             return
         reddit = praw.Reddit(client_id = '7xGfOpN5x80H0w', 
                      client_secret = '6eS8fb2mTW8Q5EcqGqcNvE_pxRY', 
@@ -90,11 +96,9 @@ def main():
             except:
                 bot.send_message(m.chat.id, "Something is wrong with this subreddit.")
     
-    def send_meme_usage(m, arg):
-        bot.send_message(m.chat.id, "Usage: " + arg + " <subreddit> [r=random | t=top | add 'c' for top comment] [all | day | hour | month | week | year]")
 
 
-    bot.polling()
+    #bot.polling()
 
 def getRedditComment(submission):
     submission.comment_sort = "best"
