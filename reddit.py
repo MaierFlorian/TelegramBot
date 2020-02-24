@@ -5,7 +5,8 @@ from prawcore import NotFound
 import re
 
 def init(bot):
-  
+    print("loading reddit")
+
     @bot.message_handler(commands=['r', 'reddit', 'meme'])
     def send_meme(m):
         args = m.text.split()
