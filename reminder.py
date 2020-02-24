@@ -2,13 +2,15 @@ import telebot
 import time
 
 def init(bot):
+    print("loading reminder")
+
     @bot.message_handler(commands=["reminder", "remind"])
     def reminder_reminder(message):
         args = message.text.split();
 
         def usage():
             bot.send_message(message.chat.id,
-                    f"Usage: {args[0]} <when> [message]")
+                    f"Usage: {args[0]} \<when\> [message]\n`when` can be either a non-negative integer followed by a char (s, m, h or d) or a fixed time in HH:MM[:SS] format\n", parse_mode="Markdown")
         
         if len(args) < 2:
             usage()
@@ -29,7 +31,10 @@ def init(bot):
             return dur_i
 
         def fixed_time():
-            t = (time.strptime(args[1], "%H:%M"))
+            try:
+                t = (time.strptime(args[1], "%H:%M"))
+            except ValueError:
+                t = time.strptime(args[1], "%H:%M:%S")
             tl = time.localtime()
             tt = list(t)
             tt[3] = tl.tm_hour
@@ -52,6 +57,11 @@ def init(bot):
             except ValueError:
                 usage()
                 return
+
+        if duration < 0:
+            usage()
+            return
+        
         bot.send_message(message.chat.id, time.strftime(
             "Going to remind you on %x at %X", time.localtime(time.time() + duration)))
 
