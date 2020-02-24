@@ -105,6 +105,3 @@ def getRedditComment(submission):
     submission.comment_limit = 1
     for top_level_comment in submission.comments:
         return top_level_comment.body
-
-if __name__ == "__main__":
-    main()
