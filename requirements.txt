@@ -1,2 +1,2 @@
 pyTelegramBotAPI==3.6.7
-
+praw==3.6.0
