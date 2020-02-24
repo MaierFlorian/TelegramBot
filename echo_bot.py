@@ -66,6 +66,15 @@ def main():
         bot.send_message(m.chat.id, f"hello {new_member}");
         knownUsers.append([x.first_name for x in m.new_chat_members])
 
+    @bot.message_handler(commands=['info'])
+    def send_info(message):
+        bot.send_message(message.chat.id, knownUsers)
+
+    @bot.message_handler(func=lambda message: message.text.lower() == "hh")
+    def echo_all(message):
+        bot.send_message(message.chat.id, "hh, " + str(message.chat.first_name))
+        return message.chat.id
+
     bot.polling()
 
 def saveMembers():
