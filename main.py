@@ -3,6 +3,7 @@ import time
 import os 
 
 import reddit
+import hhInteract
 
 def main():
     with open("token.txt") as f:
@@ -15,10 +16,11 @@ def main():
 
     @bot.message_handler(commands=["help", "h"])
     def help(m):
-        bot.reply_to(m, "Available **commands** are:\n* hh\n* start\n* spam\n") #TODO find out why parse mode does not work
+        bot.reply_to(m, "Available **commands** are:\n* start\n* help\n* spam\n* r * reddit * meme\n") #TODO find out why parse mode does not work
 
     #now we can import
     reddit.init(bot)
+    hhInteract.init(bot)
 
     bot.polling()
 
