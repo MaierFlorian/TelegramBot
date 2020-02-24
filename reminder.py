@@ -8,9 +8,9 @@ def init(bot):
 
         def usage():
             bot.send_message(message.chat.id,
-                    f"Usage: {args[0]} <when> <what>")
+                    f"Usage: {args[0]} <when> [message]")
         
-        if len(args) < 3:
+        if len(args) < 2:
             usage()
             return
 
@@ -39,7 +39,6 @@ def init(bot):
             ts = time.struct_time(tt)
 
             td = time.mktime(t) - time.mktime(ts)
-            print(td)
             if td < 0:
                 td += 86400 # add a day if time is before now
             return td
@@ -53,7 +52,11 @@ def init(bot):
             except ValueError:
                 usage()
                 return
+        bot.send_message(message.chat.id, time.strftime(
+            "Going to remind you on %x at %X", time.localtime(time.time() + duration)))
+
+        ### if the duration is too long we let the Worker Thread handle it
 
         time.sleep(duration)
-        bot.reply_to(message, args[2])
+        bot.reply_to(message, " ".join(args[2:]) if len(args) > 2 else "Reminder")
 
