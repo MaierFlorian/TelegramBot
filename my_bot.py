@@ -2,6 +2,7 @@ import telebot
 import time
 import praw
 from prawcore import NotFound
+import re
 
 def main():
     with open("token.txt") as f:
@@ -25,31 +26,45 @@ def main():
     def send_meme(m):
         args = m.text.split()
         if (len(args) < 2 or len(args) > 4):
-            bot.send_message(m.chat.id, "Usage: /r <subreddit> [r=random | t=top | add 'c' for top comment] [all | day | hour | month | week | year]")
+            send_meme_usage(m, args[0])
             return
         sre = str(args[1])
         period = "week"
         if(len(args) == 4):
-            if(str(args[3]) == "all"):
+            if(str(args[3]) == "all" or str(args[3]) == "a"):
                 period = "all"
-            elif(str(args[3]) == "day"):
+            elif(str(args[3]) == "day" or str(args[3]) == "d"):
                 period = "day"
-            elif(str(args[3]) == "hour"):
+            elif(str(args[3]) == "hour" or str(args[3]) == "h"):
                 period = "hour"
-            elif(str(args[3]) == "month"):
+            elif(str(args[3]) == "month" or str(args[3]) == "m"):
                 period = "month"
-            elif(str(args[3]) == "week"):
+            elif(str(args[3]) == "week" or str(args[3]) == "w"):
                 period = "week"
-            elif(str(args[3]) == "year"):
+            elif(str(args[3]) == "year" or str(args[3]) == "y"):
                 period = "year"
+            else:
+                bot.send_message(m.chat.id, "Third parameter sounds wrong. Keep going with \"week\"")
         searchtype = "t"
         if(len(args) >= 3):
-            if("r" in str(args[2])):
-                searchtype = "r"
-            elif("t" in str(args[2])):
-                searchtype = "t"
-            if("c" in (str(args[2]))):
-                searchtype = searchtype + "c"
+            searchtype = ""
+            c, r, t = False, False, False
+            for arg in args[2]:
+                if arg == "c" and not c:
+                    c = True
+                    searchtype = searchtype + "c"
+                elif arg == "r" and not r and not t:
+                    r = True
+                    searchtype = searchtype + "r"
+                elif arg == "t" and not t and not r:
+                    t = True
+                    searchtype = searchtype + "t"
+                else:
+                    send_meme_usage(m, args[0])
+                    return
+        if("r" not in searchtype and "t" not in searchtype):
+            send_meme_usage(m, args[0])
+            return
         reddit = praw.Reddit(client_id = '7xGfOpN5x80H0w', 
                      client_secret = '6eS8fb2mTW8Q5EcqGqcNvE_pxRY', 
                      user_agent = 'meme-collector')
@@ -74,6 +89,9 @@ def main():
                         bot.send_message(m.chat.id, getRedditComment(subr))
             except:
                 bot.send_message(m.chat.id, "Something is wrong with this subreddit.")
+    
+    def send_meme_usage(m, arg):
+        bot.send_message(m.chat.id, "Usage: " + arg + " <subreddit> [r=random | t=top | add 'c' for top comment] [all | day | hour | month | week | year]")
 
 
     bot.polling()
@@ -83,8 +101,6 @@ def getRedditComment(submission):
     submission.comment_limit = 1
     for top_level_comment in submission.comments:
         return top_level_comment.body
-
-
 
 if __name__ == "__main__":
     main()
