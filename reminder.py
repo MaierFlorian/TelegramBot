@@ -10,7 +10,7 @@ def init(bot):
 
         def usage():
             bot.send_message(message.chat.id,
-                    f"Usage: {args[0]} \<when\> [message]\n`when` can be either a non-negative integer followed by a char (s, m, h or d) or a fixed time in HH:MM[:SS] format\n", parse_mode="Markdown")
+                    f"Usage: {args[0]} \<when\> \[message\]\n`when` can be either a non\-negative integer followed by a char \(s, m, h or d\) or a fixed time in HH:MM\[:SS\] format\n", parse_mode="Markdownv2")
         
         if len(args) < 2:
             usage()
