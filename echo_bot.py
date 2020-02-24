@@ -1,21 +1,28 @@
 import telebot
 import time
 import os 
+#import praw
+#from prawcore import NotFound
+#import re
+import reddit_bot
 
 knownUsers = []  # todo: save these in a file,
 userStep = {}  # so they won't reset every time the bot restarts
+
+membersfile = "members.txt"
 
 def main():
     with open("token.txt") as f:
         token = f.readline().strip()
     bot = telebot.TeleBot(token)
-    loadMembers()
 
-    @bot.message_handler(func=lambda m: True)
-    def add_members(message):
-        #if(message.chat.first_name not in knownUsers):
-        knownUsers.insert(message.chat.first_name)
-        saveMembers()
+    #loadMembers()
+
+#    @bot.message_handler(func=lambda m: True)
+#    def add_members(message):
+#        #if(message.chat.first_name not in knownUsers):
+#        knownUsers.append(message.chat.first_name)
+#        saveMembers()
 
     @bot.message_handler(commands=['start', 'help'])
     def send_welcome(message):
@@ -58,6 +65,7 @@ def main():
 
     @bot.message_handler(commands=["help"])
     def help(m):
+        print("help requested")
         bot.reply_to(m, "Available **commands** are:\n* hh\n* start\n* spam\n") #TODO find out why parse mode does not work
 
     @bot.message_handler(content_types=['new_chat_members'])
@@ -75,18 +83,23 @@ def main():
         bot.send_message(message.chat.id, "hh, " + str(message.chat.first_name))
         return message.chat.id
 
+    #now we can import
+    reddit_bot.init(bot)
+
+    print("begin polling")
     bot.polling()
 
 def saveMembers():
-    with open("members.txt", 'w') as f:
+    with open(membersfile, 'w+') as f:
         for s in knownUsers:
             f.write(str(s) +"\n")
 
 def loadMembers():
-    if(os.stat("members.txt").st_size != 0):
-        with open("members.txt", 'r') as f:
-            for line in f:
-                knownUsers.insert(str(line.strip()))
+    if os.path.isfile(membersfile):
+        if(os.stat(membersfile).st_size != 0):
+            with open(membersfile, 'r') as f:
+                for line in f:
+                    knownUsers.append(str(line.strip()))
 
 if __name__ == "__main__":
     main()
