@@ -15,15 +15,13 @@ def main():
     def send_welcome(message):
 	    bot.reply_to(message, "Moin")    
 
-    @bot.message_handler(commands=["help"])
+    @bot.message_handler(commands=["help", "h"])
     def help(m):
-        print("help requested")
         bot.reply_to(m, "Available **commands** are:\n* hh\n* start\n* spam\n") #TODO find out why parse mode does not work
 
     #now we can import
     reddit_bot.init(bot)
 
-    print("begin polling")
     bot.polling()
 
 if __name__ == "__main__":
