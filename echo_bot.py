@@ -1,5 +1,6 @@
 import telebot
 import time
+import os 
 
 knownUsers = []  # todo: save these in a file,
 userStep = {}  # so they won't reset every time the bot restarts
@@ -8,17 +9,17 @@ def main():
     with open("token.txt") as f:
         token = f.readline().strip()
     bot = telebot.TeleBot(token)
+    loadMembers()
 
-    @bot.message_handler(commands=['start'])
-    def command_start(m):
-        cid = m.chat.id
-        if cid not in knownUsers:  # if user hasn't used the "/start" command yet:
-            knownUsers.append(cid)  # save user id, so you could brodcast messages to all users of this bot later
-            userStep[cid] = 0  # save user id and his current "command level", so he can use the "/getImage" command
-            bot.send_message(cid, "Hello, stranger, let me scan you...")
-            bot.send_message(cid, "Scanning complete, I know you now")
-        else:
-            bot.send_message(cid, "I already know you, no need for me to scan you again!")
+    @bot.message_handler(func=lambda m: True)
+    def add_members(message):
+        #if(message.chat.first_name not in knownUsers):
+        knownUsers.insert(message.chat.first_name)
+        saveMembers()
+
+    @bot.message_handler(commands=['start', 'help'])
+    def send_welcome(message):
+	    bot.reply_to(message, "Moin")
 
     @bot.message_handler(commands=['hh'])
     def send_hh(message):
@@ -26,13 +27,27 @@ def main():
         time.sleep(60.0)
         bot.reply_to(message, ":(")
 
-    @bot.message_handler(func=lambda m: True)
+    @bot.message_handler(commands=['info'])
+    def send_info(message):
+        bot.send_message(message.chat.id, knownUsers)
+
+    @bot.message_handler(func=lambda message: message.text.lower() == "hh")
     def echo_all(message):
-        if(message.text.lower() == "hh"):
-            bot.send_message(message.chat.id, "hh")
-            return message.chat.id
+        bot.send_message(message.chat.id, "hh, " + str(message.chat.first_name))
+        return message.chat.id
 
     bot.polling()
+
+def saveMembers():
+    with open("members.txt", 'w') as f:
+        for s in knownUsers:
+            f.write(str(s) +"\n")
+
+def loadMembers():
+    if(os.stat("members.txt").st_size != 0):
+        with open("members.txt", 'r') as f:
+            for line in f:
+                knownUsers.insert(str(line.strip()))
 
 if __name__ == "__main__":
     main()
