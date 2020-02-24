@@ -1,10 +1,8 @@
 import telebot
 import time
 import os 
-#import praw
-#from prawcore import NotFound
-#import re
-import reddit_bot
+
+import reddit
 
 def main():
     with open("token.txt") as f:
@@ -20,7 +18,7 @@ def main():
         bot.reply_to(m, "Available **commands** are:\n* hh\n* start\n* spam\n") #TODO find out why parse mode does not work
 
     #now we can import
-    reddit_bot.init(bot)
+    reddit.init(bot)
 
     bot.polling()
 
