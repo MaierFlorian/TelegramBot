@@ -2,6 +2,7 @@ import telebot
 import time
 
 def init(bot):
+    print("loading hhInteract")
 
     @bot.message_handler(commands=["spam"])
     def spam_msg(m):
@@ -29,7 +30,9 @@ def init(bot):
 
 
     membershh = []
-    @bot.message_handler(func=lambda message: message.text.lower() == "hh")
+
+    @bot.message_handler(func=lambda message: message.text is not None and
+            message.text.lower() == "hh")
     def echo_all(message):
         members = 1
         try:

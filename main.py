@@ -2,8 +2,7 @@ import telebot
 import time
 import os 
 
-import reddit
-import hhInteract
+import reddit, hhInteract, reminder
 
 def main():
     with open("token.txt") as f:
@@ -21,6 +20,7 @@ def main():
     #now we can import
     reddit.init(bot)
     hhInteract.init(bot)
+    reminder.init(bot)
 
     bot.polling()
 
