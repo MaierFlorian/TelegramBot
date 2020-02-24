@@ -27,14 +27,39 @@ def main():
         time.sleep(60.0)
         bot.reply_to(message, ":(")
 
-    @bot.message_handler(commands=['info'])
-    def send_info(message):
-        bot.send_message(message.chat.id, knownUsers)
+#    @bot.message_handler(func=lambda m: True)
+#    def echo_all(message):
+#        print(message)
+#        if(message.text.lower() == "hh"):
+#            bot.send_message(message.chat.id, "hh")
+#            return message.chat.id
 
-    @bot.message_handler(func=lambda message: message.text.lower() == "hh")
-    def echo_all(message):
-        bot.send_message(message.chat.id, "hh, " + str(message.chat.first_name))
-        return message.chat.id
+    @bot.message_handler(commands=["spam"])
+    def spam_msg(m):
+        cid = m.chat.id
+        args = m.text.split()
+        num = 10
+        msg = "spam"
+        if len(args) > 3:
+            num = 1
+            msg = "Usage: /spam [num] [msg]"
+        else:
+            if len(args) >= 2:
+                num = int(args[1])
+            if len(args) == 3:
+                msg = args[2]
+        for _ in range(num):
+            bot.send_message(cid, msg)
+
+    @bot.message_handler(commands=["help"])
+    def help(m):
+        bot.reply_to(m, "Available commands are:\n* hh\n* start\n* spam")
+
+    @bot.message_handler(content_types=['new_chat_members'])
+    def greetings(m):
+        new_member = ', '.join([x.first_name for x in m.new_chat_members])
+        bot.send_message(m.chat.id, f"hello {new_member}");
+        knownUsers.append([x.first_name for x in m.new_chat_members])
 
     bot.polling()
 
