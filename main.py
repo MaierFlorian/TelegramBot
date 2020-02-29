@@ -7,7 +7,7 @@ from importlib import import_module
 
 """ DEFAULT CONFIGURATION """
 default_configuration = {
-        "config_file": "./config",                          # the config file
+        "config_file": "./config",                          # the config file TODO a more decent location for config files
         "modules": ["reddit", "hhInteract", "reminder"],    # default loaded modules
         "token_file": "token.txt",
         "token": None,
@@ -30,10 +30,33 @@ def init_config():
             configuration[k] = v
     
     if "token" in configuration and "token_file" in configuration:
-        print("Only a token or a token file can be specified")
+        print("Only either a token or a token file can be specified", file=sys.stderr)
         sys.exit(1)
 
     #read config file, if present TODO
+    if "config_file" in configuration:
+        #TODO maybe work with ENVVAR for a more global option
+        if not os.path.isfile(configuration["config_file"]):
+            print("The specified configuration file does not exist", file=sys.stderr)
+            sys.exit(2)
+    else:
+        configuration["config_file"] = default_configuration["config_file"]
+    try:
+        with open(configuration["config_file"]) as f:
+            for l in f.lines():
+                if len(l) > 0 and not l.startswith('#'):
+                    k, v = map(lambda s: s.strip(), l.split("="))
+                    if k == "config_file": #check validity of file contents
+                        raise ValueError
+                    elif k == "token_file":
+                        configuration[k] = v
+                        #TODO continue
+    except IOError:
+        pass
+    except ValueError:
+        print("The specified configuration file is invalid", file=sys.stderr)
+        sys.exit(3)
+
     #load the defaults for still unset options
     for k, v in default_configuration.items():
         if k not in configuration:
