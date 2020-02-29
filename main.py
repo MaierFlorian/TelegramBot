@@ -1,10 +1,31 @@
 import telebot
 import time
 import os 
+import sys
+from importlib import import_module
 
-import reddit, hhInteract, reminder
+""" DEFAULT CONFIGURATION """
+default_configuration = {
+        "config_file": "./config",                          # the config file
+        "modules": ["reddit", "hhInteract", "reminder"],    # default loaded modules
+        "verbosity": 0                                      # verbosity level
+        }
+
+def init_config():
+    configuration = {}
+    #parse cli arg TODO
+    #check if an config file is set via a cli arg
+    #read config file, if present TODO
+    #load the defaults for still unset options
+    for k, v in default_configuration.items():
+        if k not in configuration:
+            configuration[k] = v
+
+    return configuration
 
 def main():
+    configuration = init_config()
+
     with open("token.txt") as f:
         token = f.readline().strip()
     bot = telebot.TeleBot(token)
@@ -15,12 +36,12 @@ def main():
 
     @bot.message_handler(commands=["help", "h"])
     def help(m):
-        bot.reply_to(m, "Available **commands** are:\n* start\n* help\n* spam\n* r * reddit * meme\n") #TODO find out why parse mode does not work
+        bot.reply_to(m, "Available **commands** are:\n* start\n* help\n* spam\n* r / reddit / meme\n", parse_mode="Markdownv2") #TODO find out why parse mode does not work
 
     #now we can import
-    reddit.init(bot)
-    hhInteract.init(bot)
-    reminder.init(bot)
+    for m in configuration["modules"]:
+        mod = import_module(m)
+        mod.init(bot)
 
     bot.polling()
 
