@@ -7,7 +7,8 @@ from importlib import import_module
 
 """ DEFAULT CONFIGURATION """
 default_configuration = {
-        "config_file": "./config",                          # the config file TODO a more decent location for config files
+        "config_file": "./res/config",                          # the config file TODO a more decent location for config files
+        "modules_path": "modules",
         "modules": ["reddit", "hhInteract", "reminder"],    # default loaded modules
         "token_file": "token.txt",
         "token": None,
@@ -43,12 +44,21 @@ def init_config():
         configuration["config_file"] = default_configuration["config_file"]
     try:
         with open(configuration["config_file"]) as f:
-            for l in f.lines():
-                if len(l) > 0 and not l.startswith('#'):
+            for l in f:
+                if len(l) > 1 and not l.startswith('#'):
                     k, v = map(lambda s: s.strip(), l.split("="))
-                    if k == "config_file": #check validity of file contents
+                    if k in configuration:
+                        continue
+                    #check validity of file contents
+                    if k == "config_file": # declaring config file inside the file is redundant
                         raise ValueError
-                    elif k == "token_file":
+                    #elif k == "token_file":
+                    #    configuration[k] = v
+                    elif k == "modules":
+                        configuration[k] = v.split(',')
+                    elif k == "verbosity":
+                        configuration[k] = int(v)
+                    else:
                         configuration[k] = v
                         #TODO continue
     except IOError:
@@ -84,7 +94,7 @@ def main():
 
     #now we can import
     for m in configuration["modules"]:
-        mod = import_module(m)
+        mod = import_module(configuration["modules_path"] + "." + m)
         mod.init(bot)
 
     bot.polling()

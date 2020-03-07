@@ -1,0 +1,3 @@
+#Configuration for Telegram Bot
+modules=reddit,reminder,hhInteract,insult
+
